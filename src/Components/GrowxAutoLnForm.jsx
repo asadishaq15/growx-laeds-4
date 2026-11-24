@@ -94,7 +94,6 @@ const INITIAL_FORM = {
   vehicle1_model: "",
   ip_address: "",
   jornaya_leadid: "",
-  trusted_form_cert_url: "",
   age: "",
 };
 
@@ -107,8 +106,6 @@ const OPTIONAL_FIELDS = [
   "vehicle1_make",
   "vehicle1_model",
   "ip_address",
-  "jornaya_leadid",
-  "trusted_form_cert_url",
   "age",
 ];
 
@@ -215,7 +212,6 @@ export default function GrowxAutoLnForm() {
       vehicle1_model: formData.vehicle1_model.trim(),
       ip_address: formData.ip_address.trim(),
       jornaya_leadid: formData.jornaya_leadid.trim(),
-      trusted_form_cert_url: formData.trusted_form_cert_url.trim(),
       age: formData.age.trim(),
     };
 
@@ -244,6 +240,11 @@ export default function GrowxAutoLnForm() {
       return;
     }
 
+    if (!payload.jornaya_leadid) {
+      setError("Jornaya Lead ID is required.");
+      return;
+    }
+
     if (payload.dob && !/^\d{4}-\d{2}-\d{2}$/.test(payload.dob)) {
       setError("Date of birth must be in YYYY-MM-DD format.");
       return;
@@ -269,6 +270,7 @@ export default function GrowxAutoLnForm() {
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
+        jornaya_leadid: payload.jornaya_leadid,
       });
       appendOptionalFields(pingParams, payload, true);
 
@@ -294,6 +296,7 @@ export default function GrowxAutoLnForm() {
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
+        jornaya_leadid: payload.jornaya_leadid,
       };
       appendOptionalFields(postBody, payload, false);
 
@@ -592,7 +595,9 @@ export default function GrowxAutoLnForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Jornaya Lead ID</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Jornaya Lead ID <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="jornaya_leadid"
@@ -600,18 +605,7 @@ export default function GrowxAutoLnForm() {
               onChange={handleChange}
               className={inputClass}
               placeholder="Jornaya Lead ID"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Trusted Form URL</label>
-            <input
-              type="text"
-              name="trusted_form_cert_url"
-              value={formData.trusted_form_cert_url}
-              onChange={handleChange}
-              className={inputClass}
-              placeholder="https://cert.trustedform.com/..."
+              required
             />
           </div>
 
