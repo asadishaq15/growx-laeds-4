@@ -94,7 +94,7 @@ const INITIAL_FORM = {
   vehicle1_model: "",
   ip_address: "",
   jornaya_leadid: "",
-  UTCISODate: "",
+  optin_timestamp: "",
   age: "",
 };
 
@@ -189,7 +189,7 @@ export default function GrowxAutoLnForm() {
       vehicle1_model: formData.vehicle1_model.trim(),
       ip_address: formData.ip_address.trim(),
       jornaya_leadid: formData.jornaya_leadid.trim(),
-      UTCISODate: formData.UTCISODate.trim(),
+      optin_timestamp: formData.optin_timestamp.trim(),
       age: formData.age.trim(),
     };
 
@@ -285,15 +285,18 @@ export default function GrowxAutoLnForm() {
       return;
     }
 
-    if (!payload.UTCISODate) {
+    if (!payload.optin_timestamp) {
       setError("Optin Timestamp is required.");
       return;
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(payload.UTCISODate)) {
-      setError("Optin Timestamp must be in UTC ISO format: 2020-01-01T14:24:39Z.");
+    const optinDate = new Date(payload.optin_timestamp);
+    if (Number.isNaN(optinDate.getTime())) {
+      setError("Please select a valid Optin Timestamp.");
       return;
     }
+
+    const UTCISODate = optinDate.toISOString().replace(/\.\d{3}Z$/, "Z");
 
     setIsSubmitting(true);
 
@@ -316,7 +319,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
-        UTCISODate: payload.UTCISODate,
+        UTCISODate,
         age: payload.age,
       });
 
@@ -351,7 +354,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
-        UTCISODate: payload.UTCISODate,
+        UTCISODate,
         age: payload.age,
       };
 
@@ -696,15 +699,13 @@ export default function GrowxAutoLnForm() {
               Optin Timestamp <span className="text-red-500">*</span>
             </label>
             <input
-              type="text"
-              name="UTCISODate"
-              value={formData.UTCISODate}
+              type="datetime-local"
+              name="optin_timestamp"
+              value={formData.optin_timestamp}
               onChange={handleChange}
               className={inputClass}
-              placeholder="2020-01-01T14:24:39Z"
               required
             />
-            <p className="mt-2 text-xs text-gray-500">UTC ISO format: YYYY-MM-DDTHH:mm:ssZ</p>
           </div>
 
           <div className="pt-2">
