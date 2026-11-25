@@ -94,20 +94,9 @@ const INITIAL_FORM = {
   vehicle1_model: "",
   ip_address: "",
   jornaya_leadid: "",
+  UTCISODate: "",
   age: "",
 };
-
-const OPTIONAL_FIELDS = [
-  "dob",
-  "marital_status",
-  "gender",
-  "residence_status",
-  "vehicle1_year",
-  "vehicle1_make",
-  "vehicle1_model",
-  "ip_address",
-  "age",
-];
 
 function extractPingId(data) {
   return (
@@ -130,18 +119,6 @@ function formatErrors(data, fallback) {
   }
 
   return data?.message || data?.error || data?.status || fallback;
-}
-
-function appendOptionalFields(target, payload, isSearchParams = false) {
-  for (const key of OPTIONAL_FIELDS) {
-    const value = payload[key];
-    if (!value) continue;
-    if (isSearchParams) {
-      target.set(key, value);
-    } else {
-      target[key] = value;
-    }
-  }
 }
 
 export default function GrowxAutoLnForm() {
@@ -212,6 +189,7 @@ export default function GrowxAutoLnForm() {
       vehicle1_model: formData.vehicle1_model.trim(),
       ip_address: formData.ip_address.trim(),
       jornaya_leadid: formData.jornaya_leadid.trim(),
+      UTCISODate: formData.UTCISODate.trim(),
       age: formData.age.trim(),
     };
 
@@ -240,22 +218,81 @@ export default function GrowxAutoLnForm() {
       return;
     }
 
+    if (!payload.dob) {
+      setError("Date of birth is required.");
+      return;
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(payload.dob)) {
+      setError("Date of birth must be in YYYY-MM-DD format.");
+      return;
+    }
+
+    if (!payload.age) {
+      setError("Age is required.");
+      return;
+    }
+
+    const ageNum = Number(payload.age);
+    if (Number.isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+      setError("Please enter a valid age.");
+      return;
+    }
+
+    if (!payload.marital_status) {
+      setError("Please select a marital status.");
+      return;
+    }
+
+    if (!payload.gender) {
+      setError("Please select a gender.");
+      return;
+    }
+
+    if (!payload.residence_status) {
+      setError("Please select a residence status.");
+      return;
+    }
+
+    if (!payload.vehicle1_year) {
+      setError("Vehicle year is required.");
+      return;
+    }
+
+    const year = Number(payload.vehicle1_year);
+    if (Number.isNaN(year) || year < 1900 || year > 2200) {
+      setError("Vehicle year must be between 1900 and 2200.");
+      return;
+    }
+
+    if (!payload.vehicle1_make) {
+      setError("Vehicle make is required.");
+      return;
+    }
+
+    if (!payload.vehicle1_model) {
+      setError("Vehicle model is required.");
+      return;
+    }
+
+    if (!payload.ip_address) {
+      setError("IP address is required.");
+      return;
+    }
+
     if (!payload.jornaya_leadid) {
       setError("Jornaya Lead ID is required.");
       return;
     }
 
-    if (payload.dob && !/^\d{4}-\d{2}-\d{2}$/.test(payload.dob)) {
-      setError("Date of birth must be in YYYY-MM-DD format.");
+    if (!payload.UTCISODate) {
+      setError("Optin Timestamp is required.");
       return;
     }
 
-    if (payload.vehicle1_year) {
-      const year = Number(payload.vehicle1_year);
-      if (Number.isNaN(year) || year < 1900 || year > 2200) {
-        setError("Vehicle year must be between 1900 and 2200.");
-        return;
-      }
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(payload.UTCISODate)) {
+      setError("Optin Timestamp must be in UTC ISO format: 2020-01-01T14:24:39Z.");
+      return;
     }
 
     setIsSubmitting(true);
@@ -270,9 +307,18 @@ export default function GrowxAutoLnForm() {
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
+        dob: payload.dob,
+        marital_status: payload.marital_status,
+        gender: payload.gender,
+        residence_status: payload.residence_status,
+        vehicle1_year: payload.vehicle1_year,
+        vehicle1_make: payload.vehicle1_make,
+        vehicle1_model: payload.vehicle1_model,
+        ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
+        UTCISODate: payload.UTCISODate,
+        age: payload.age,
       });
-      appendOptionalFields(pingParams, payload, true);
 
       const pingResponse = await fetch(`/api/ping23?${pingParams.toString()}`);
       const pingData = await pingResponse.json();
@@ -296,9 +342,18 @@ export default function GrowxAutoLnForm() {
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
+        dob: payload.dob,
+        marital_status: payload.marital_status,
+        gender: payload.gender,
+        residence_status: payload.residence_status,
+        vehicle1_year: payload.vehicle1_year,
+        vehicle1_make: payload.vehicle1_make,
+        vehicle1_model: payload.vehicle1_model,
+        ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
+        UTCISODate: payload.UTCISODate,
+        age: payload.age,
       };
-      appendOptionalFields(postBody, payload, false);
 
       const postResponse = await fetch("/api/post23", {
         method: "POST",
@@ -471,7 +526,9 @@ export default function GrowxAutoLnForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Date of Birth</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Date of Birth <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="dob"
@@ -479,10 +536,13 @@ export default function GrowxAutoLnForm() {
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="YYYY-MM-DD"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Age <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="age"
@@ -490,18 +550,22 @@ export default function GrowxAutoLnForm() {
                 onChange={handleAgeChange}
                 className={inputClass}
                 placeholder="35"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Marital Status</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Marital Status <span className="text-red-500">*</span>
+              </label>
               <select
                 name="marital_status"
                 value={formData.marital_status}
                 onChange={handleChange}
                 className={inputClass}
+                required
               >
                 <option value="">Select status</option>
                 {MARITAL_STATUS_OPTIONS.map((o) => (
@@ -512,12 +576,15 @@ export default function GrowxAutoLnForm() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Gender <span className="text-red-500">*</span>
+              </label>
               <select
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
                 className={inputClass}
+                required
               >
                 <option value="">Select gender</option>
                 {GENDER_OPTIONS.map((o) => (
@@ -530,12 +597,15 @@ export default function GrowxAutoLnForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Residence Status</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Residence Status <span className="text-red-500">*</span>
+            </label>
             <select
               name="residence_status"
               value={formData.residence_status}
               onChange={handleChange}
               className={inputClass}
+              required
             >
               <option value="">Select residence status</option>
               {RESIDENCE_STATUS_OPTIONS.map((o) => (
@@ -548,7 +618,9 @@ export default function GrowxAutoLnForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Year</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Vehicle Year <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="vehicle1_year"
@@ -556,10 +628,13 @@ export default function GrowxAutoLnForm() {
                 onChange={handleYearChange}
                 className={inputClass}
                 placeholder="2018"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Make</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Vehicle Make <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="vehicle1_make"
@@ -567,10 +642,13 @@ export default function GrowxAutoLnForm() {
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="Toyota"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Model</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Vehicle Model <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="vehicle1_model"
@@ -578,12 +656,15 @@ export default function GrowxAutoLnForm() {
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="Camry"
+                required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">IP Address</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              IP Address <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="ip_address"
@@ -591,6 +672,7 @@ export default function GrowxAutoLnForm() {
               onChange={handleChange}
               className={inputClass}
               placeholder="103.131.212.217"
+              required
             />
           </div>
 
@@ -607,6 +689,22 @@ export default function GrowxAutoLnForm() {
               placeholder="Jornaya Lead ID"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Optin Timestamp <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="UTCISODate"
+              value={formData.UTCISODate}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="2020-01-01T14:24:39Z"
+              required
+            />
+            <p className="mt-2 text-xs text-gray-500">UTC ISO format: YYYY-MM-DDTHH:mm:ssZ</p>
           </div>
 
           <div className="pt-2">
