@@ -58,6 +58,7 @@ app.get("/api/ping23", async (req, res) => {
       first_name,
       last_name,
       email,
+      address,
       city,
       state,
       zip,
@@ -92,6 +93,7 @@ app.get("/api/ping23", async (req, res) => {
     if (first_name) apiUrl += `&first_name=${encodeURIComponent(first_name)}`;
     if (last_name) apiUrl += `&last_name=${encodeURIComponent(last_name)}`;
     if (email) apiUrl += `&email=${encodeURIComponent(email)}`;
+    if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
     if (city) apiUrl += `&city=${encodeURIComponent(city)}`;
     if (state) apiUrl += `&state=${encodeURIComponent(state)}`;
     if (zip) apiUrl += `&zip=${encodeURIComponent(zip)}`;
@@ -204,6 +206,7 @@ app.post("/api/post23", async (req, res) => {
 
     const optional = [
       "email",
+      "address",
       "dob",
       "marital_status",
       "gender",

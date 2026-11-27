@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 
 const TRACKDRIVE_NUMBER = "+18446163653";
 const TRAFFIC_SOURCE_ID = "1000";
+const TRUSTED_FORM_CERT_URL =
+  "https://cert.trustedform.com/584ed983c1f6f7bd6e711764d06afbd3aa2617ea";
 
 const US_STATES = [
   { value: "AL", label: "Alabama" },
@@ -83,6 +85,7 @@ const INITIAL_FORM = {
   first_name: "",
   last_name: "",
   email: "",
+  address: "",
   city: "",
   state: "",
   zip: "",
@@ -98,6 +101,12 @@ const INITIAL_FORM = {
   optin_timestamp: "",
   age: "",
 };
+
+function formatOriginalLeadSubmitDate(datetimeLocalValue) {
+  const [datePart, timePart = "00:00"] = String(datetimeLocalValue).split("T");
+  const timeWithSeconds = timePart.length === 5 ? `${timePart}:00` : timePart;
+  return `${datePart} ${timeWithSeconds}`;
+}
 
 function extractPingId(data) {
   return (
@@ -179,6 +188,7 @@ export default function GrowxAutoLnForm() {
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
       email: formData.email.trim(),
+      address: formData.address.trim(),
       city: formData.city.trim(),
       state: formData.state.trim(),
       zip: formData.zip.trim(),
@@ -212,6 +222,11 @@ export default function GrowxAutoLnForm() {
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
       setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!payload.address) {
+      setError("Address is required.");
       return;
     }
 
@@ -302,13 +317,12 @@ export default function GrowxAutoLnForm() {
       return;
     }
 
-    const optinDate = new Date(payload.optin_timestamp);
-    if (Number.isNaN(optinDate.getTime())) {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(payload.optin_timestamp)) {
       setError("Please select a valid Optin Timestamp.");
       return;
     }
 
-    const original_lead_submit_date = optinDate.toISOString().replace(/\.\d{3}Z$/, "Z");
+    const original_lead_submit_date = formatOriginalLeadSubmitDate(payload.optin_timestamp);
 
     setIsSubmitting(true);
 
@@ -320,6 +334,7 @@ export default function GrowxAutoLnForm() {
         first_name: payload.first_name,
         last_name: payload.last_name,
         email: payload.email,
+        address: payload.address,
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
@@ -332,6 +347,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
+        trusted_form_cert_url: TRUSTED_FORM_CERT_URL,
         original_lead_submit_date,
         age: payload.age,
       });
@@ -356,6 +372,7 @@ export default function GrowxAutoLnForm() {
         first_name: payload.first_name,
         last_name: payload.last_name,
         email: payload.email,
+        address: payload.address,
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
@@ -368,6 +385,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
+        trusted_form_cert_url: TRUSTED_FORM_CERT_URL,
         original_lead_submit_date,
         age: payload.age,
       };
@@ -500,6 +518,21 @@ export default function GrowxAutoLnForm() {
               onChange={handleChange}
               className={inputClass}
               placeholder="first-and-last-name@gmail.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="123 Fake Street"
               required
             />
           </div>
