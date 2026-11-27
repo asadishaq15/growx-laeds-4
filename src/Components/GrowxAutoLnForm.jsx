@@ -82,6 +82,7 @@ const INITIAL_FORM = {
   caller_id: "",
   first_name: "",
   last_name: "",
+  email: "",
   city: "",
   state: "",
   zip: "",
@@ -177,6 +178,7 @@ export default function GrowxAutoLnForm() {
       caller_id: formData.caller_id.trim(),
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
+      email: formData.email.trim(),
       city: formData.city.trim(),
       state: formData.state.trim(),
       zip: formData.zip.trim(),
@@ -200,6 +202,16 @@ export default function GrowxAutoLnForm() {
 
     if (!payload.first_name || !payload.last_name) {
       setError("First name and last name are required.");
+      return;
+    }
+
+    if (!payload.email) {
+      setError("Email address is required.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -307,6 +319,7 @@ export default function GrowxAutoLnForm() {
         caller_id: payload.caller_id,
         first_name: payload.first_name,
         last_name: payload.last_name,
+        email: payload.email,
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
@@ -342,6 +355,7 @@ export default function GrowxAutoLnForm() {
         ping_id: pingId,
         first_name: payload.first_name,
         last_name: payload.last_name,
+        email: payload.email,
         city: payload.city,
         state: payload.state,
         zip: payload.zip,
@@ -473,6 +487,21 @@ export default function GrowxAutoLnForm() {
               required
             />
             <p className="mt-2 text-xs text-gray-500">Format: +1XXXXXXXXXX</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Email Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="first-and-last-name@gmail.com"
+              required
+            />
           </div>
 
           <div>

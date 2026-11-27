@@ -8,6 +8,7 @@ export default async function handler(req, res) {
       caller_id,
       first_name,
       last_name,
+      email,
       city,
       state,
       zip,
@@ -53,6 +54,7 @@ export default async function handler(req, res) {
 
     if (first_name) apiUrl += `&first_name=${encodeURIComponent(first_name)}`;
     if (last_name) apiUrl += `&last_name=${encodeURIComponent(last_name)}`;
+    if (email) apiUrl += `&email=${encodeURIComponent(email)}`;
     if (city) apiUrl += `&city=${encodeURIComponent(city)}`;
     if (state) apiUrl += `&state=${encodeURIComponent(state)}`;
     if (zip) apiUrl += `&zip=${encodeURIComponent(zip)}`;
