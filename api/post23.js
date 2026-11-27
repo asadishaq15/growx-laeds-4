@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       "ip_address",
       "jornaya_leadid",
       "trusted_form_cert_url",
-      "UTCISODate",
+      "original_lead_submit_date",
       "age",
     ];
     for (const key of optional) {

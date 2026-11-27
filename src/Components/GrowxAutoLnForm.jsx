@@ -296,7 +296,7 @@ export default function GrowxAutoLnForm() {
       return;
     }
 
-    const UTCISODate = optinDate.toISOString().replace(/\.\d{3}Z$/, "Z");
+    const original_lead_submit_date = optinDate.toISOString().replace(/\.\d{3}Z$/, "Z");
 
     setIsSubmitting(true);
 
@@ -319,7 +319,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
-        UTCISODate,
+        original_lead_submit_date,
         age: payload.age,
       });
 
@@ -354,7 +354,7 @@ export default function GrowxAutoLnForm() {
         vehicle1_model: payload.vehicle1_model,
         ip_address: payload.ip_address,
         jornaya_leadid: payload.jornaya_leadid,
-        UTCISODate,
+        original_lead_submit_date,
         age: payload.age,
       };
 

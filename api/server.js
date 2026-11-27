@@ -70,7 +70,7 @@ app.get("/api/ping23", async (req, res) => {
       ip_address,
       jornaya_leadid,
       trusted_form_cert_url,
-      UTCISODate,
+      original_lead_submit_date,
       age,
     } = req.query;
 
@@ -105,7 +105,9 @@ app.get("/api/ping23", async (req, res) => {
     if (trusted_form_cert_url) {
       apiUrl += `&trusted_form_cert_url=${encodeURIComponent(trusted_form_cert_url)}`;
     }
-    if (UTCISODate) apiUrl += `&UTCISODate=${encodeURIComponent(UTCISODate)}`;
+    if (original_lead_submit_date) {
+      apiUrl += `&original_lead_submit_date=${encodeURIComponent(original_lead_submit_date)}`;
+    }
     if (age) apiUrl += `&age=${encodeURIComponent(age)}`;
 
     console.log("Ping23 upstream URL:", apiUrl);
@@ -209,7 +211,7 @@ app.post("/api/post23", async (req, res) => {
       "ip_address",
       "jornaya_leadid",
       "trusted_form_cert_url",
-      "UTCISODate",
+      "original_lead_submit_date",
       "age",
     ];
     for (const key of optional) {
